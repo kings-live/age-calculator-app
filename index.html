@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Tempo de Vida</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9ff, #e8f0ff);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .result p {
+            color: #555;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+            border-left-color: #e53e3e;
+            color: #c53030;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .datetime-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ Calculadora de Tempo de Vida</h1>
+            <p>Descubra exatamente há quanto tempo você está neste mundo!</p>
+        </div>
+
+        <form id="ageForm">
+            <div class="form-group">
+                <label for="name">Nome completo</label>
+                <input type="text" id="name" name="name" required placeholder="Digite seu nome completo">
+            </div>
+
+            <div class="datetime-group">
+                <div class="form-group">
+                    <label for="birthDate">Data de nascimento</label>
+                    <input type="date" id="birthDate" name="birthDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="birthTime">Horário de nascimento</label>
+                    <input type="time" id="birthTime" name="birthTime" required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Calcular meu tempo de vida
+            </button>
+        </form>
+
+        <div id="result" class="result">
+            <h3>Resultado:</h3>
+            <p id="resultText"></p>
+        </div>
+
+        <div class="footer">
+            <p>Projeto de aprendizado - Firebase + n8n + Vercel</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Configuração do Firebase (você vai substituir pelos seus dados)
+        const firebaseConfig = {
+            // Suas credenciais do Firebase aqui
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Elementos do DOM
+        const form = document.getElementById('ageForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const result = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+
+        // URL do seu webhook n8n (vai ser substituída pela sua URL local)
+        const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/age-calculator';
+
+        // Função para enviar dados para o n8n
+        async function sendToN8n(userData) {
+            try {
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Erro ao comunicar com n8n:', error);
+                throw error;
+            }
+        }
+
+        // Função para salvar no Firebase
+        async function saveToFirebase(userData, calculation) {
+            try {
+                const docRef = await addDoc(collection(db, "age_calculations"), {
+                    name: userData.name,
+                    birthDate: userData.birthDate,
+                    birthTime: userData.birthTime,
+                    calculation: calculation,
+                    timestamp: serverTimestamp()
+                });
+                console.log("Document written with ID: ", docRef.id);
+                return docRef.id;
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                throw error;
+            }
+        }
+
+        // Função para mostrar resultado
+        function showResult(text, isError = false) {
+            result.className = `result show ${isError ? 'error' : ''}`;
+            resultText.innerHTML = text;
+        }
+
+        // Função para mostrar loading
+        function showLoading() {
+            submitBtn.innerHTML = '<div class="loading"></div>Calculando...';
+            submitBtn.disabled = true;
+        }
+
+        // Função para esconder loading
+        function hideLoading() {
+            submitBtn.innerHTML = 'Calcular meu tempo de vida';
+            submitBtn.disabled = false;
+        }
+
+        // Event listener do formulário
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Coletar dados do formulário
+            const formData = new FormData(form);
+            const userData = {
+                name: formData.get('name'),
+                birthDate: formData.get('birthDate'),
+                birthTime: formData.get('birthTime'),
+                submittedAt: new Date().toISOString()
+            };
+
+            showLoading();
+
+            try {
+                // Enviar para n8n para processamento
+                const n8nResponse = await sendToN8n(userData);
+                
+                // Salvar no Firebase
+                await saveToFirebase(userData, n8nResponse);
+                
+                // Mostrar resultado
+                showResult(n8nResponse.result || 'Cálculo realizado com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                showResult(
+                    '❌ Ops! Ocorreu um erro ao processar seu pedido. Verifique se o n8n está rodando e tente novamente.',
+                    true
+                );
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Definir data máxima como hoje
+        document.getElementById('birthDate').max = new Date().toISOString().split('T')[0];
+
+        // Fazer as funções disponíveis globalmente para debug
+        window.sendToN8n = sendToN8n;
+        window.saveToFirebase = saveToFirebase;
+    </script>
+</body>
+</html>
