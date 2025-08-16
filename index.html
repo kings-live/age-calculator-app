@@ -281,7 +281,7 @@ const app = initializeApp(firebaseConfig);
         const resultText = document.getElementById('resultText');
 
         // URL do seu webhook n8n (vai ser substituída pela sua URL local)
-        const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/age-calculator';
+        const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/age-calculator';
 
         // Função para enviar dados para o n8n
         async function sendToN8n(userData) {
